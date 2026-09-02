@@ -3,10 +3,236 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>README Maker</title>
+    <title>README Maker — fill in a form, get a README.md</title>
+    <meta name="description" content="You shipped the project and never wrote the README. Fill in a form and get one back: badges, a table of contents, installation and usage sections, ready to copy. Runs in the browser, nothing is uploaded." />
+    <link rel="canonical" href="https://readme.alftech.space/" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="README Maker" />
+    <meta property="og:title" content="README Maker — fill in a form, get a README.md" />
+    <meta property="og:description" content="Badges, a table of contents, installation and usage sections, ready to copy. Runs in the browser, nothing is uploaded." />
+    <meta property="og:url" content="https://readme.alftech.space/" />
+    <meta property="og:image" content="https://readme.alftech.space/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The README Maker form beside its live Markdown preview" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="README Maker — fill in a form, get a README.md" />
+    <meta name="twitter:description" content="Badges, a table of contents, installation and usage sections, ready to copy. Runs in the browser, nothing is uploaded." />
+    <meta name="twitter:image" content="https://readme.alftech.space/og.png" />
+    <meta name="theme-color" content="#030712" />
+    <script>
+/* Маячок «инструментом воспользовались». Открытая страница — ещё не польза:
+   считается момент, когда человек забрал результат — скопировал его или
+   скачал файл. Один GET /_used за сессию, в обычный лог доступа; никаких
+   кук, никаких внешних сервисов, ничего о самом результате. */
+(function () {
+  var sent = false;
+  window.markToolUsed = function () {
+    if (sent) return;
+    sent = true;
+    try {
+      if (!(navigator.sendBeacon && navigator.sendBeacon('/_used'))) {
+        fetch('/_used', { keepalive: true });
+      }
+    } catch (error) { /* счётчик не важнее инструмента */ }
+  };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      var write = navigator.clipboard.writeText.bind(navigator.clipboard);
+      navigator.clipboard.writeText = function (text) {
+        window.markToolUsed();
+        return write(text);
+      };
+    }
+  } catch (error) { /* нет клипборда — останутся скачивания */ }
+  document.addEventListener('click', function (event) {
+    var node = event.target;
+    while (node && node.tagName) {
+      if (node.tagName === 'A' && node.hasAttribute('download')) {
+        window.markToolUsed();
+        break;
+      }
+      node = node.parentNode;
+    }
+  }, true);
+})();
+</script>
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "README Maker",
+      "url": "https://readme.alftech.space/",
+      "description": "A form that writes a README.md: badges, a table of contents, features, installation, usage and a licence section. Runs entirely in the browser.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any browser",
+      "browserRequirements": "Requires JavaScript",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }
+    }
+    </script>
+    <!--
+      The page below #root is static on purpose. Everything this app draws is
+      drawn by React, so a crawler and a chat link preview used to receive a
+      document with twelve characters of text in it. This part is served in the
+      HTML itself, and it stays on the page after the app mounts - it is the
+      description a reader gets, not a block hidden for search engines.
+    -->
+    <style>
+      .about {
+        background: #030712;
+        color: #d1d5db;
+        border-top: 1px solid #1f2937;
+        font: 16px/1.65 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .about__inner { max-width: 760px; margin: 0 auto; padding: 40px 20px 56px; }
+      .about h1 { font-size: clamp(23px, 5.2vw, 30px); line-height: 1.2; letter-spacing: -0.5px;
+        color: #f9fafb; margin: 0 0 14px; }
+      .about h2 { font-size: 18px; line-height: 1.3; color: #f9fafb; margin: 30px 0 10px; }
+      .about p { margin: 0 0 14px; max-width: 62ch; }
+      .about ul { margin: 0 0 14px; padding-left: 20px; }
+      .about li { margin: 6px 0; }
+      .about code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px;
+        background: #111827; border: 1px solid #1f2937; border-radius: 5px; padding: 1px 5px; color: #a7f3d0; }
+      .about pre { background: #0b1220; border: 1px solid #1f2937; border-radius: 10px;
+        padding: 14px 16px; overflow-x: auto; margin: 0 0 14px; }
+      .about pre code { background: none; border: 0; padding: 0; color: #cbd5e1; font-size: 13.5px; line-height: 1.6; }
+      .about .note { color: #9ca3af; font-size: 15px; }
+      .about a { color: #4ade80; }
+      /* 44px is the tap target the phone sweep measures against. */
+      .about a.home { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none;
+        border: 1px solid #1f2937; border-radius: 10px; padding: 0 18px; margin-top: 6px; }
+      .about a.home:hover { border-color: #4ade80; }
+      /* One quiet line to close the page: who made it, where the rest of them
+         live, and where to write when something here is wrong. The 44px
+         line-height gives every wrapped line a finger-sized box, so both links
+         stay tappable on a phone without the sentence becoming a row of
+         buttons. */
+      .about .colophon { margin: 32px 0 0; padding-top: 18px; border-top: 1px solid #1f2937;
+        color: #9ca3af; font-size: 14px; line-height: 44px; max-width: none; }
+      .about .colophon a { display: inline-block; min-height: 44px; }
+      .about .colophon .donate[hidden] { display: none; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <section class="about">
+      <div class="about__inner">
+        <h1>README Maker — fill in a form, get a README.md</h1>
+        <p>
+          You put the project up and there is no description, and writing one is
+          the last thing you feel like doing. Fill in the form above and the file
+          writes itself: badges, a table of contents, sections on installation and
+          usage, straight to your clipboard.
+        </p>
+        <p>
+          It is for anyone pushing a repository that deserves a front page and has
+          a blank one. There is no account, nothing to pay for, and nothing is
+          uploaded — the form, the Markdown and the preview all run inside your
+          browser, and the page makes no network requests once it has loaded.
+        </p>
+
+        <h2>What ends up in the file</h2>
+        <ul>
+          <li>A title, and any badges you tick</li>
+          <li>Your description, followed by a table of contents linking the sections you filled in</li>
+          <li><strong>Features</strong> as a bullet list, one line per feature</li>
+          <li><strong>Installation</strong> and <strong>Usage</strong> as fenced code blocks</li>
+          <li>A <strong>License</strong> section: MIT, Apache 2.0, GPL 3.0, BSD 3-Clause, or none</li>
+        </ul>
+        <p class="note">
+          Sections you leave empty are left out entirely, so the result has no
+          headings with nothing under them.
+        </p>
+
+        <h2>Badges available</h2>
+        <p>
+          Ten shields.io badges, ticked on and off:
+          Node.js, React, TypeScript, Python, JavaScript, Vue.js, Angular, Docker,
+          Rust and Go.
+        </p>
+
+        <h2>What it gives you back</h2>
+        <p>
+          A project called <code>lumen</code> with two badges, three features and an
+          MIT licence comes out like this:
+        </p>
+        <pre><code># lumen
+
+![Node.js](https://img.shields.io/badge/Node.js-339933?...) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?...)
+
+A tiny static-site server with live reload.
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [License](#license)
+
+## Features
+
+- Zero config
+- Live reload over WebSocket
+- Single 40 kB binary
+
+## Installation
+
+```bash
+npm install -g lumen
+```
+
+## Usage
+
+```
+lumen ./public --port 8080
+```
+
+## License
+
+This project is licensed under the MIT License.</code></pre>
+        <p class="note">
+          The preview on the right renders that Markdown as you type, so you see
+          the page GitHub will show before you paste anything.
+        </p>
+
+        <a class="home" href="https://alftech.space/">More small tools →</a>
+
+        <!--
+          The address below is written with character references rather than
+          plain letters. A reader sees it in full and the mailto link opens
+          exactly as a hand-typed one would, but the regex an address harvester
+          runs over the raw page finds nothing to match. Which is also why this
+          comment does not spell the address out.
+        -->
+        <p class="colophon">
+          Made by Aleksandr Fedorov at
+          <a href="https://alftech.space/">alftech.space</a>. Nothing you type
+          here reaches a server: the form, the Markdown and the preview all run
+          in this tab. If a badge points somewhere wrong, or GitHub renders the
+          file differently from the preview, write to
+          <a href="mailto:a&#64;alftech&#46;space">a&#64;alftech&#46;space</a
+          ><span class="donate" hidden>
+            · <a rel="noopener">buy me a coffee</a></span
+          >
+        </p>
+      </div>
+    </section>
+    <script>
+      /* Donations are switched off: there is no account on any platform yet, so
+         there is no URL to send a reader to. Put that URL in DONATE_URL and the
+         line appears - that single edit is the whole switch. */
+      const DONATE_URL = '';
+      if (DONATE_URL) {
+        const slot = document.querySelector('.colophon .donate');
+        slot.querySelector('a').href = DONATE_URL;
+        slot.hidden = false;
+      }
+    </script>
   </body>
 </html>
